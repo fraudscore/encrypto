@@ -27,7 +27,7 @@ export default function RootLayout({
         <NavBar/>
           {children}
       </NextUIProvider>
-</body>
+    </body>
     </html>
   );
 }
