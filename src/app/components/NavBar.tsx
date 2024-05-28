@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function NavBar() {
   return (
-    <div className="flex justify-center items-center py-4">
+    <div className="flex justify-center items-center py-4 bg-gray-950">
       <Navbar
         className="w-2/3 rounded-3xl shadow-lg bg-blue-100 slide-in"
         classNames={{

@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} animated-background`}>
         <NextUIProvider>
-          <div className="bg-gray-950 h-screen">
+          <div className="">
             <NavBar />
             {children}
           </div>
