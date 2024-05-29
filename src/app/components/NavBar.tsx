@@ -1,8 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
 import Image from "next/image";
+import { cookies } from 'next/headers'
 
-export default function NavBar() {
+export default async function NavBar() {
+  const cookieStore = cookies()
+  const sessiontoken = cookieStore.get('sessiontoken')
+    
+
 
   return (
     <div className="flex justify-center items-center py-4 bg-gray-950">
@@ -49,16 +54,26 @@ export default function NavBar() {
           </NavbarItem>
         </NavbarContent>
         <NavbarContent justify="end">
-          <NavbarItem className="hidden lg:flex fade-in">
+          {!sessiontoken && <NavbarItem className="hidden lg:flex fade-in">
             <Link href="/authentication/login">Login</Link>
-          </NavbarItem>
+          </NavbarItem> }
+          
           <NavbarItem>
+            {!sessiontoken && 
             <Button as={Link} color="primary" href="/authentication/register" variant="flat" className="fade-in">
               Sign Up
-            </Button>
+            </Button>}
+            {
+              sessiontoken && 
+              <Button as={Link} color="primary"  variant="flat" className="fade-in">
+                Sign Out
+              </Button>
+            }
+             
           </NavbarItem>
         </NavbarContent>
       </Navbar>
     </div>
   );
 }
+
