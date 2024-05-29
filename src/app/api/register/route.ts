@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 const prisma = new PrismaClient();
 
 const algorithm = 'aes-256-cbc';
-const key = process.env.ENCRYPTION_KEY; 
+const key = process.env.ENCRYPTION_KEY || ""; 
 const iv = crypto.randomBytes(16); 
 
 function encrypt(text: string, key: string, iv: Buffer): string {
@@ -69,8 +69,13 @@ export async function POST(req: NextRequest) {
         if(!isValidIPAddress(ip_address)){
             return NextResponse.json({"error": "Invalid Ip Address"})
         }
+        const existingUser = await prisma.user.findUnique({ where: { email: email } });
+        if (existingUser !== null) {
+            return NextResponse.json({ "error": "Email already registered" });
+        }
 
         const sessiontoken = generateUUID();
+        console.log(sessiontoken)
         const encrypted_sessiontoken = encrypt(sessiontoken, key, iv);
 
         const hashedPassword = await bcrypt.hash(password, 10);
