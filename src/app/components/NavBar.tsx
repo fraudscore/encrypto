@@ -7,7 +7,7 @@ export default async function NavBar() {
   const cookieStore = cookies()
   const sessiontoken = cookieStore.get('sessiontoken')
     
-
+  const test = "test"
 
   return (
     <div className="flex justify-center items-center py-4 bg-gray-950">
