@@ -1,40 +1,23 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Button } from "@nextui-org/react";
 import { EyeFilledIcon } from "./EyeFilledIcon";
 import { EyeSlashFilledIcon } from "./EyeSlashFilledIcon";
+import axios from 'axios'
 
 function Page() {
 
-  const getLocalIPAddress = async () => {
-    return new Promise((resolve, reject) => {
-        const RTCPeerConnection = window.RTCPeerConnection || window.RTCPeerConnection;
-        if (!RTCPeerConnection) {
-            reject(new Error('WebRTC is not supported by this browser.'));
-            return;
-        }
+  const[ip, setIp] = useState('')
 
-        const rtcPeerConnection = new RTCPeerConnection({ iceServers: [] });
+  useEffect(() => {
+    getUserIP()
+  }, [])
 
-        rtcPeerConnection.onicecandidate = event => {
-            if (event.candidate === null) {
-                rtcPeerConnection.close();
-                reject(new Error('Failed to get local IP address.'));
-                return;
-            }
-            const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-            const match = ipRegex.exec(event.candidate.candidate);
-            if (match !== null) {
-                resolve(match[1]);
-            } else {
-                reject(new Error('Failed to parse local IP address.'));
-            }
-        };
-
-        rtcPeerConnection.createOffer(offer => rtcPeerConnection.setLocalDescription(offer), reject);
-    });
-};
-
+  const getUserIP = async () => {
+      const ip = await axios.get('https://ipapi.co/json');
+      console.log(ip.data.ip) 
+      setIp(ip.data.ip)
+  }
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
@@ -62,17 +45,17 @@ function Page() {
       return
     }
     try{
-      const browser_agent = navigator.userAgent;
-      const response = fetch('http://localhost:3000/api/register', {
+      const useragent = navigator.userAgent;
+      const response = await fetch('http://localhost:3000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password, browser_agent, getLocalIPAddress })
+      body: JSON.stringify({ email, password, useragent, ip })
       })
+      const data = await response.json()
       
       console.log(response)
-      console.log(getLocalIPAddress)
     }catch(e: any){
         console.log(e)
     }

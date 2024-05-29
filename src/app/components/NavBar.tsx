@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
 import Image from "next/image";
 
 export default function NavBar() {
+
   return (
     <div className="flex justify-center items-center py-4 bg-gray-950">
       <Navbar

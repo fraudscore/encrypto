@@ -1,45 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
+import { createCipheriv, createDecipheriv, pbkdf2Sync } from "crypto";
+import { log } from "console";
+import { cookies } from 'next/headers'
+
 
 const prisma = new PrismaClient();
 
-const algorithm = 'aes-256-cbc';
-const key = process.env.ENCRYPTION_KEY || ""; 
-const iv = crypto.randomBytes(16); 
 
-function encrypt(text: string, key: string, iv: Buffer): string {
-    const cipher = crypto.createCipheriv(algorithm, Buffer.from(key, 'base64'), iv);
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return `${iv.toString('hex')}:${encrypted}`;
-}
+const derivedKey = pbkdf2Sync(process.env.ENCRYPTION_KEY!, "salt", 1000, 32, "sha256");
 
-function decrypt(text: string, key: string): string {
-    const textParts = text.split(':');
-    if (textParts.length !== 2) {
-        throw new Error('Invalid encrypted text format');
+export const encrypt = (value: any): string | null => {
+  try {
+    const text = typeof value === "object" ? JSON.stringify(value) : value;
+    const cipher = createCipheriv("aes-256-ecb", derivedKey, null);
+    let encrypted = cipher.update(text, "utf8", "base64");
+    encrypted += cipher.final("base64");
+    return encrypted;
+  } catch (error) {
+    process.env.NODE_ENV === "production" && log(error);
+    return null;
+  }
+};
+
+export const decrypt = <T = string>(encryptedText: string): T | null => {
+  if (typeof encryptedText !== "string") return null;
+  try {
+    const decipher = createDecipheriv("aes-256-ecb", derivedKey, null);
+    let decrypted = decipher.update(encryptedText, "base64", "utf8");
+    decrypted += decipher.final("utf8");
+    try {
+      return JSON.parse(decrypted) as T;
+    } catch (error) {
+      return decrypted as any;
     }
-    const iv = Buffer.from(textParts[0], 'hex');
-    const encryptedText = Buffer.from(textParts[1], 'hex');
-    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key, 'base64'), iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString('utf8');
-}
+  } catch (error) {
+    process.env.NODE_ENV === "production" && log(error);
+    return null;
+  }
+};
 
-function generateUUID(): string {
-    let d = new Date().getTime(); 
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
-        d += performance.now(); 
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        let r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-}
 
 function isValidEmail(email: string): boolean {
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,11 +63,11 @@ function isValidIPAddress(ipAddress: string): boolean {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { email, browser_agend, ip_address, password } = body;
+        const { email, useragent, password, ip } = body;
         if(!isValidEmail(email)){
             return NextResponse.json({"error": "Not a valid email provided"})
         }
-        if(!isValidIPAddress(ip_address)){
+        if(!isValidIPAddress(ip)){
             return NextResponse.json({"error": "Invalid Ip Address"})
         }
         const existingUser = await prisma.user.findUnique({ where: { email: email } });
@@ -74,23 +75,26 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ "error": "Email already registered" });
         }
 
-        const sessiontoken = generateUUID();
-        console.log(sessiontoken)
-        const encrypted_sessiontoken = encrypt(sessiontoken, key, iv);
-
         const hashedPassword = await bcrypt.hash(password, 10);
+
 
         const user = await prisma.user.create({
             data: {
                 email: email,
-                browser_agend: browser_agend,
-                ip_address: ip_address,
+                useragent: useragent,
+                ip: ip,
                 password: hashedPassword,
-                sessiontoken: encrypted_sessiontoken
             }
         });
 
-        return NextResponse.json({ "email": email, "sessiontoken": encrypted_sessiontoken });
+        const sessiontoken: any = encrypt(JSON.stringify(user))
+        cookies().set({
+            name: 'sessiontoken',
+            value: sessiontoken,
+            httpOnly: true,
+            path: '/',
+          })
+        return NextResponse.json({ "email": email, "sessiontoken": sessiontoken });
     } catch (err) {
         console.error(err);  
         return NextResponse.json({ "Message": "error" }, { status: 500 });
