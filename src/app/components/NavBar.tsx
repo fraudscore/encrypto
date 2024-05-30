@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
 import Image from "next/image";
 import { cookies } from 'next/headers'
+import LogOutButton from "./LogOutButton";
 
 export default async function NavBar() {
   const cookieStore = cookies()
@@ -65,9 +66,7 @@ export default async function NavBar() {
             </Button>}
             {
               sessiontoken && 
-              <Button as={Link} color="primary"  variant="flat" className="fade-in">
-                Sign Out
-              </Button>
+              <LogOutButton/>
             }
              
           </NavbarItem>
