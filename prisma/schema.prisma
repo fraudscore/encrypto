@@ -8,11 +8,12 @@ datasource db {
 }
 
 model user {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  password String
-  ip String
-  useragent String
-  isAdmin Boolean @default(false)
-  isEmailConfirmed Boolean @default(false)
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  username          String   @unique
+  password          String
+  ip                String
+  useragent         String
+  isAdmin           Boolean  @default(false)
+  isEmailConfirmed  Boolean  @default(false)
 }
