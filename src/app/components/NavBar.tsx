@@ -49,8 +49,8 @@ export default async function NavBar() {
             </Link>
           </NavbarItem>
           <NavbarItem>
-            <Link color="foreground" href="#">
-              API
+            <Link color="foreground" href="/chat">
+              Chat
             </Link>
           </NavbarItem>
         </NavbarContent>
