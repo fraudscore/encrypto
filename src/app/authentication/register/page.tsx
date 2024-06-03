@@ -88,7 +88,7 @@ function Page() {
         setAlert({
           title: 'Registration Failed',
           description: data.error || 'There was an issue with your registration. Please try again.',
-          status: response.status
+          status: 400
         });
       }
     } catch (e: any) {

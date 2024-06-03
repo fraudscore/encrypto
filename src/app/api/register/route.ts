@@ -55,6 +55,10 @@ function isValidUsername(username: string): boolean {
   return usernameRegex.test(username);
 }
 
+function isValidPassword(password: string): boolean {
+  return password.length > 7;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -70,6 +74,10 @@ export async function POST(req: NextRequest) {
 
     if (!isValidUsername(username)) {
       return NextResponse.json({ "error": "Username must be alphanumeric and no longer than 12 characters" }, { status: 400 });
+    }
+
+    if (!isValidPassword(password)) {
+      return NextResponse.json({ "error": "Password must be longer than 7 characters" }, { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });

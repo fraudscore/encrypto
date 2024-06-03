@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, Avatar } from "@nextui-org/react";
 import Image from "next/image";
 import { cookies } from 'next/headers'
 import LogOutButton from "./LogOutButton";
+import Avatarcomponent from "./Avatarcomponent";
+import type DecryptedToken from "@/types/types";
+import { decrypt } from "../api/register/route";
+import { PrismaClient } from '@prisma/client';
+
+
+
 
 export default async function NavBar() {
   const cookieStore = cookies()
   const sessiontoken = cookieStore.get('sessiontoken')
-    
-  const test = "test"
+  let decryptedToken: null | DecryptedToken = null
+
+
+  if(sessiontoken?.value){
+    decryptedToken = decrypt(sessiontoken.value) as DecryptedToken
+  }
 
   return (
     <div className="flex justify-center items-center py-4 bg-gray-950">
@@ -55,19 +66,19 @@ export default async function NavBar() {
           </NavbarItem>
         </NavbarContent>
         <NavbarContent justify="end">
-          {!sessiontoken && <NavbarItem className="hidden lg:flex fade-in">
+          {!decryptedToken && <NavbarItem className="hidden lg:flex fade-in">
             <Link href="/authentication/login">Login</Link>
           </NavbarItem> }
           
           <NavbarItem>
-            {!sessiontoken && 
+            {!decryptedToken && 
             <Button as={Link} color="primary" href="/authentication/register" variant="flat" className="fade-in">
               Sign Up
             </Button>}
             {
-              sessiontoken && 
-              <LogOutButton/>
+              decryptedToken && <Avatarcomponent username={decryptedToken?.username} email={decryptedToken?.email} image={decryptedToken?.profilepicture} />
             }
+       
              
           </NavbarItem>
         </NavbarContent>
