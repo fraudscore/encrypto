@@ -3,7 +3,7 @@ import React from 'react';
 import { decrypt } from '../api/register/route';
 import type DecryptedToken from '@/types/types';
 import type { PrivateChat, GroupChat } from '@/types/types';
-import {Button} from "@nextui-org/react";
+import {Chip} from "@nextui-org/react";
 import AddChat from '../components/AddChat';
 
 async function page() {
@@ -21,21 +21,27 @@ async function page() {
   }
 
   return (
-    <div className='bg-gray-950 h-screen flex'>
+    <div className='bg-gray-950 h-screen flex overflow-hidden'>
       <div className='w-1/3 border-r border-gray-700 p-4'>
-        <div className='mb-4 flex gap-2'>
+      <div className="flex items-center justify-center ">
+      <div className='mb-4 flex gap-2 items-center'>
+        <div className="relative w-full">
+          <span className="absolute left-3 top-2 text-black font-bold">@</span>
           <input
             type='text'
-            placeholder='Search Contacts'
-            className='w-full p-2 rounded-xl bg-blue-100 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-transparent'
+            placeholder='Search Username'
+            className='w-full pl-8 font-bold p-2 rounded-xl bg-blue-100 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-transparent'
           />
-                    <AddChat/>
-
         </div>
+        <AddChat />
+      </div>
+    </div>
         {(!groupChats || !privateChats) ? (
-          <div className='flex gap-4'>
-          <h1 className='text-white text-2xl font-semibold '>No chats yet</h1>
-          </div>
+         <div className="flex items-center justify-center">
+         <div className='flex gap-4 items-center'>
+           <Chip color="warning" className="bg-gray-700 border-gray-400 text-blue-100" variant="faded">Pretty empty here</Chip>
+         </div>
+       </div>
         ) : (
           <div className='space-y-4'>
             {groupChats.map((chat, index) => (
@@ -48,9 +54,9 @@ async function page() {
         )}
       </div>
       <div className='w-2/3 p-4'>
-        <h1 className='text-white'>Chat Area</h1>
-        {/* Hier kommt der Chat-Inhalt hin */}
-      </div>
+      <div className="flex items-center justify-center min-h-screen ">
+      <Chip color="warning" className="bg-gray-700 border-gray-400 text-blue-100" variant="faded">Select a Chat</Chip>
+    </div>      </div>
     </div>
   );
 }
