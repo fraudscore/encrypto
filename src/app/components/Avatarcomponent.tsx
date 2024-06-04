@@ -9,7 +9,7 @@ async function clearcookie() {
   })
   if(response.status === 200){
       console.log("Cookie cleared")
-      window.location.href = '/authentication/login';
+      window.location.href = '/';
   }
 }
 

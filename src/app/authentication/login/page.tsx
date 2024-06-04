@@ -47,7 +47,7 @@ function Login() {
           status: 200
         });
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/chat";
         }, 2000);
       } else {
         setAlert({

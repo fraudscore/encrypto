@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, Avatar } from "@nextui-org/react";
 import Image from "next/image";
 import { cookies } from 'next/headers'
-import LogOutButton from "./LogOutButton";
 import Avatarcomponent from "./Avatarcomponent";
 import type DecryptedToken from "@/types/types";
 import { decrypt } from "../api/register/route";

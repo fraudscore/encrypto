@@ -7,6 +7,5 @@ export async function POST(req: Request){
     if(cookieStore.get("sessiontoken")){
         cookies().delete('sessiontoken')
         return NextResponse.json({}, {status: 200})
-
     }
 }
