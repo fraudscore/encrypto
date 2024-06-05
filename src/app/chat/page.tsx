@@ -1,3 +1,4 @@
+" use client"
 import { cookies } from 'next/headers';
 import React from 'react';
 import { decrypt } from '../api/register/route';
@@ -29,7 +30,7 @@ async function page() {
           <span className="absolute left-3 top-2 text-black font-bold">@</span>
           <input
             type='text'
-            placeholder='Search Username'
+            placeholder='Search Contacts'
             className='w-full pl-8 font-bold p-2 rounded-xl bg-blue-100 text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-transparent'
           />
         </div>
