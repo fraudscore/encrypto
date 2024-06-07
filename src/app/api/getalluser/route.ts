@@ -6,12 +6,26 @@ const prisma = new PrismaClient();
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '5', 10); // Standardbegrenzung auf 5 geändert
+    const limit = parseInt(searchParams.get('limit') || '5', 10);
+    const searchQuery = searchParams.get('query') || '';
     const skip = (page - 1) * limit;
 
     const users = await prisma.user.findMany({
+        where: {
+            username: {
+                contains: searchQuery, // Remove 'mode' to make it compatible with your Prisma version
+            },
+        },
         skip,
         take: limit,
+    });
+
+    const totalUsers = await prisma.user.count({
+        where: {
+            username: {
+                contains: searchQuery, // Remove 'mode' to make it compatible with your Prisma version
+            },
+        },
     });
 
     const validatedUsers: any[] = users.map((user) => [
@@ -20,5 +34,5 @@ export async function GET(request: Request) {
         { "profilepicture": user.profilepicture }
     ]);
 
-    return NextResponse.json({ users: validatedUsers }, { status: 200 });
+    return NextResponse.json({ users: validatedUsers, totalUsers }, { status: 200 });
 }
