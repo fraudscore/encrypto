@@ -4,10 +4,10 @@ import debounce from 'lodash.debounce';
 
 function AddChatPopUp({ show, onClose }: any) {
   const [users, setUsers]: any = useState([]);
-  const [totalUsers, setTotalUsers]: any = useState(0); // Gesamtzahl der Benutzer
+  const [totalUsers, setTotalUsers]: any = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5; // Anzahl der Benutzer pro Seite
+  const usersPerPage = 5;
 
   const fetchUsers = async (query: string, page: number) => {
     const response = await fetch(`http://localhost:3000/api/getalluser?page=${page}&limit=${usersPerPage}&query=${query}`, {
@@ -15,7 +15,7 @@ function AddChatPopUp({ show, onClose }: any) {
     });
     const data = await response.json();
     setUsers(data.users);
-    setTotalUsers(data.totalUsers); // Gesamtzahl der Benutzer setzen
+    setTotalUsers(data.totalUsers);
   };
 
   const debouncedFetchUsers = debounce(fetchUsers, 300);
@@ -28,10 +28,32 @@ function AddChatPopUp({ show, onClose }: any) {
 
   if (!show) return null;
 
-  // Pagination logic
-  const totalPages = Math.ceil(totalUsers / usersPerPage); // Gesamtanzahl der Seiten basierend auf der Gesamtanzahl der Benutzer
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  const handleAddChat = async (userEmail: string) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/addchat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ addChatUserEmail: userEmail })
+      });
+
+      const data = await response.json();
+      console.log("Status: " + data.Status + " Message: " + JSON.stringify(data));
+
+      if (response.ok) {
+        console.log('Chat created successfully:', data.chatId);
+      } else {
+        console.error('Error creating chat:', data.error);
+      }
+    } catch (error) {
+      console.error('Error creating chat:', error);
+    }
   };
 
   return (
@@ -45,21 +67,25 @@ function AddChatPopUp({ show, onClose }: any) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      <ul>
-  {users.map((user: any, index: any) => (
-    <li key={index} className="mb-2 flex items-center">
-  <div className="flex items-center flex-grow">
-    <img src={user[2].profilepicture} alt={`@${user[0].username}'s profile`} className="w-8 h-8 rounded-full mr-2" />
-    <span className="font-bold">@{user[0].username}</span>
-    <span className="text-gray-500"> ({user[1].email})</span>
-  </div>
-  <Button color="primary" variant="shadow" className="rounded focus:outline-none px-11 py-3 ml-3">
-    Add Chat
-  </Button>
-</li>
-  ))}
-</ul>
-        {/* Pagination buttons */}
+        <ul>
+          {users.map((user: any, index: any) => (
+            <li key={index} className="mb-2 flex items-center">
+              <div className="flex items-center flex-grow">
+                <img src={user[2].profilepicture} alt={`@${user[0].username}'s profile`} className="w-8 h-8 rounded-full mr-2" />
+                <span className="font-bold">@{user[0].username}</span>
+                <span className="text-gray-500"> ({user[1].email})</span>
+              </div>
+              <Button
+                color="primary"
+                variant="shadow"
+                className="rounded focus:outline-none px-11 py-3 ml-3"
+                onClick={() => handleAddChat(user[1].email)}
+              >
+                Add Chat
+              </Button>
+            </li>
+          ))}
+        </ul>
         <div className="mt-4">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
             <button

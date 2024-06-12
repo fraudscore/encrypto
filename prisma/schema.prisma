@@ -17,7 +17,7 @@ model User {
   profilepicture    String @default("/img/defaultimage.jpg")
   isAdmin           Boolean       @default(false)
   isEmailConfirmed Boolean       @default(false)
-  privateChats      PrivateChat[] @relation("users")
+  privateChats      PrivateChat[] @relation("users") 
   groupChats        GroupChat[]   @relation("users")
   messages          Message[]     @relation("sender")
 }
